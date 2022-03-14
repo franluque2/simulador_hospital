@@ -8,6 +8,7 @@ SIM_TIME = 10
 TICK_TIME = 1
 SCALE_FACTOR=0.001
 
+
 def patient(env, name, in_pipe, out_pipe, illnesses=None, treatment=None):
     if illnesses is None:
         illnesses = []
