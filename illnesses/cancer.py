@@ -3,33 +3,28 @@ import random
 
 
 class Cancer(base.Illness):
-    def proceed(self, name, treatment, ill_pipe):
+    def proceed(self, name, treatment):
         rand = random.randint(0, 10)
         if self.env.now - self.startTime <= 5:
             if "Correcto" in treatment:
                 if rand<8:
-                    ill_pipe.put(None)
-                    return
+                    return None
                 else:
-                    ill_pipe.put("Heal 10")
-                    return
+
+                    return "Heal 10"
             elif "Incorrecto" in treatment:
                 if rand>8:
-                    ill_pipe.put(None)
-                    return
+
+                    return None
                 else:
-                    ill_pipe.put("Damage 10")
-                    return
+                    return "Damage 10"
             else:
-                ill_pipe.put(None)
-                return
+                return None
                 pass
         elif self.env.now - self.startTime <= 10:
             if "Correcto" in treatment:
-                ill_pipe.put(None)
-                return
+                return None
                 pass
             else:
-                ill_pipe.put(None)
-                return
+                return None
                 pass

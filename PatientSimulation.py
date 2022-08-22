@@ -17,25 +17,25 @@ def patient(env, name, in_pipe, out_pipe, illnesses=None, treatment=None, health
         treatment = []
     input_operation = in_pipe.get()
     shouldRun = True
-    ill_pipe = simpy.Store(env)
     while shouldRun:
         treatment=MongoClient.gettreatment(id)
         print(health)
         for i in illnesses:
-            i.proceed(name, treatment, ill_pipe)
-            status = ill_pipe.get()
+            status =i.proceed(name, treatment)
+
+
             # if status.value == "Dead":
             #     shouldRun = False
 
-            if not status.value:
+            if not status:
                 a = 1
-            if status.value == "Cured":
+            if status == "Cured":
                 illnesses.remove(i)
-            elif status.value == "Heal 10":
+            elif status == "Heal 10":
                 if health + 10 <= 100:
                     health = health + 10
                     MongoClient.updatehealth(id, health)
-            elif status.value == "Damage 10":
+            elif status == "Damage 10":
                 if health - 10 >= 0:
                     health = health - 10
                     MongoClient.updatehealth(id, health)
@@ -53,14 +53,19 @@ def patient(env, name, in_pipe, out_pipe, illnesses=None, treatment=None, health
             shouldRun = False
         yield env.timeout(TICK_TIME)
 
+
 def setup(env, patients):
-    pipe = simpy.Store(env)
-    pipe_out = simpy.Store(env)
-    for p in patients:
+    broadcast=BroadcastPipe.BroadcastPipe(env)
+    pipes=[]
+    pipes_out=[]
+    for idx, p in enumerate(patients):
+        print(idx)
+        pipes.append(broadcast.get_output_conn())
+        pipes_out.append(broadcast.get_output_conn())
         try:
-            env.process(patient(env, p[0], pipe, pipe_out, p[1], p[2], p[3], p[4]))
+            env.process(patient(env, p[0], pipes[idx], pipes_out[idx], p[1], p[2], p[3], p[4]))
         except(IndexError):
-            env.process(patient(env, p[0], pipe, pipe_out, p[1], p[3], p[4]))
+            env.process(patient(env, p[0], pipes[idx], pipes_out[idx], p[1], p[3], p[4]))
 
 
 def start_sim():

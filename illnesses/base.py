@@ -4,5 +4,5 @@ class Illness(object):
         self.name = name
         self.startTime=env.now
 
-    def proceed(self, name, treatment, ill_pipe):
-        return None
+    def proceed(self, name, treatment):
+        return ""
