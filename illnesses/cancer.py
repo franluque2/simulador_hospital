@@ -21,10 +21,10 @@ class Cancer(base.Illness):
             else:
                 return None
                 pass
-        elif self.env.now - self.startTime <= 10:
+        elif self.env.now - self.startTime <= 1000:
             if "Correcto" in treatment:
-                return None
+                return "Heal 10"
                 pass
             else:
-                return None
+                return "Damage 10"
                 pass

@@ -19,6 +19,7 @@ def patient(env, name, in_pipe, out_pipe, illnesses=None, treatment=None, health
     shouldRun = True
     while shouldRun:
         treatment=MongoClient.gettreatment(id)
+        # print(treatment)
         print(health)
         for i in illnesses:
             status =i.proceed(name, treatment)
@@ -33,6 +34,7 @@ def patient(env, name, in_pipe, out_pipe, illnesses=None, treatment=None, health
                 illnesses.remove(i)
             elif status == "Heal 10":
                 if health + 10 <= 100:
+                    # print("HEAL")
                     health = health + 10
                     MongoClient.updatehealth(id, health)
             elif status == "Damage 10":
@@ -78,4 +80,4 @@ def start_sim():
     print(patients)
     setup(env, patients)
     #
-    env.run(until = SIM_TIME)
+    env.run()
