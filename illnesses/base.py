@@ -4,5 +4,8 @@ class Illness(object):
         self.name = name
         self.startTime=env.now
 
-    def proceed(self, name, treatment):
+    def proceed(self, name, treatment, hea):
         return ""
+
+    def update_health_attributes(self, hea):
+        return hea
