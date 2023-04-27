@@ -55,6 +55,21 @@ def login():
     return jsonify({'msg': 'The email or password is incorrect'}), 401
 
 
+@app.route("/api/v1/change_details", methods=["POST"])
+@jwt_required()
+def change_details():
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    change_details_account = request.get_json()
+    if user_from_db:
+        if change_details_account["password_old"] and change_details_account["password_new"] and hashlib.sha256(
+                change_details_account['password_old'].encode("utf-8")).hexdigest() == user_from_db["password"]:
+            user_from_db["password"] = change_details_account["password_new"]
+        return jsonify({'msg': "Changed Password"}), 200
+    else:
+        return jsonify({'msg': 'Profile not found'}), 404
+
+
 @app.route("/api/v1/get_user_info", methods=["GET"])
 @jwt_required()
 def profile():
@@ -62,7 +77,8 @@ def profile():
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
         del user_from_db['_id'], user_from_db['password'], user_from_db[
-            'patients']  # delete data we don't want to return
+            'patients'], user_from_db["notifications"], user_from_db[
+            "pending_transfers"]  # delete data we don't want to return
         return jsonify({'profile': user_from_db}), 200
     else:
         return jsonify({'msg': 'Profile not found'}), 404
@@ -213,6 +229,84 @@ def delete_patient():
         return jsonify({'msg': 'Deleted Patients'}), 200
 
 
+@app.route("/api/v1/delete_notifications", methods=["POST"])
+@jwt_required()
+def delete_notification():
+    notifications = request.get_json()
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        FranMongoClient.delete_notification(str(user_from_db["_id"]), notifications["notification"])
+
+        return jsonify({'msg': 'Deleted notifications'}), 200
+
+
+@app.route("/api/v1/notifications", methods=["GET"])
+@jwt_required()
+def get_notifications():
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        notificationsdb = user_from_db["notifications"]
+        return jsonify({'notifications': json.loads(dumps(notificationsdb))}), 200
+    else:
+        return jsonify({'msg': 'Profile not found'}), 404
+
+
+@app.route("/api/v1/transfer/send_transfer_request", methods=["POST"])
+@jwt_required()
+def send_transfer_request():
+    details = request.get_json()
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        if details["receiver_ids"] and details["patient_id"]:
+            FranMongoClient.send_request(str(user_from_db["_id"]), (details["receiver_ids"]),
+                                         str(details["patient_id"]))
+            return jsonify({'msg': 'Transfered Patient'}), 200
+        else:
+            return jsonify({'msg': 'Missing info'}), 400
+
+
+@app.route("/api/v1/transfer/", methods=["GET"])
+@jwt_required()
+def get_transfers():
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        temp = []
+        transfer_requests = user_from_db["pending_transfers"]
+        if transfer_requests:
+            for transf in transfer_requests:
+                item = {'patientid': transf["patient_id"],
+                        'senderid': transf["sender_id"],
+                        'patientname': patients_collection.find_one({"_id": ObjectId(transf["patient_id"])})["name"],
+                        'sendername': users_collection.find_one({"_id": ObjectId(transf["sender_id"])})["name"],
+                        'patientsrc': patients_collection.find_one({"_id": ObjectId(transf["patient_id"])})["src"],
+                        'sendersrc': users_collection.find_one({"_id": ObjectId(transf["sender_id"])})["profile_img"]
+                        }
+                temp.append(item)
+        return jsonify({'transfer_requests': json.loads(dumps(temp))}), 200
+    else:
+        return jsonify({'msg': 'Profile not found'}), 404
+
+
+@app.route("/api/v1/transfer/reject_transfer", methods=["POST"])
+@jwt_required()
+def reject_transfer():
+    details = request.get_json()
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        if "patient_id" in details and "user_id" in details:
+            FranMongoClient.process_request(str(user_from_db["_id"]), details["user_id"], details["patient_id"], False)
+            # FranMongoClient.assign_patient(details["patient_id"], user_from_db["_id"])
+            # FranMongoClient.unassign_patient(details["patient_id"], details["user_id"])
+            return jsonify({'msg': 'Transfered Patient'}), 200
+        else:
+            return jsonify({'msg': 'Missing info'}), 400
+
+
 @app.route("/api/v1/transfer/accept_transfer", methods=["POST"])
 @jwt_required()
 def accept_transfer():
@@ -221,8 +315,9 @@ def accept_transfer():
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
         if "patient_id" in details and "user_id" in details:
-            FranMongoClient.assign_patient(details["patient_id"], user_from_db["_id"])
-            FranMongoClient.unassign_patient(details["patient_id"], details["user_id"])
+            FranMongoClient.process_request(str(user_from_db["_id"]), details["user_id"], details["patient_id"], True)
+            # FranMongoClient.assign_patient(details["patient_id"], user_from_db["_id"])
+            # FranMongoClient.unassign_patient(details["patient_id"], details["user_id"])
             return jsonify({'msg': 'Transfered Patient'}), 200
         else:
             return jsonify({'msg': 'Missing info'}), 400

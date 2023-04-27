@@ -1,6 +1,6 @@
 import simpy
 import random
-from illnesses import malaria, coronavirus, cancer
+from illnesses import cancer
 import FranMongoClient
 import BroadcastPipe
 import requests

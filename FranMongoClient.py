@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
-import illnesses.malaria
-from illnesses import base, coronavirus, malaria, cancer
+import illnesses.base
+from illnesses import base, cancer
 from bson.objectid import ObjectId
 
 client = MongoClient("localhost", 27017)
@@ -10,10 +10,6 @@ db = client.Hospital
 
 
 def str_to_illness(env, illness, name):
-    if illness == "Malaria":
-        return illnesses.malaria.Malaria(env, name)
-    if illness == "Coronavirus (Delta)":
-        return illnesses.coronavirus.CoronavirusDelta(env, name)
     if illness == "cancer":
         return illnesses.cancer.Cancer(env, name)
     else:
@@ -24,9 +20,9 @@ def updatehealth(id, num):
     val = float(db.HospitalPatients.find_one({"_id": ObjectId(id)})["color"])
     print(val)
     print(num)
-    if (val + num )> 1:
+    if (val + num) > 1:
         val = 1
-    elif (val + num )< 0:
+    elif (val + num) < 0:
         val = 0
     else:
         val = val + num
@@ -84,13 +80,16 @@ def getUsers():
 def get_patient_by_id(id):
     return db.HospitalPatients.find_one({"_id": ObjectId(id)})
 
-def determine(x,id):
+
+def determine(x, id):
     return ObjectId(id) not in x["patients"]
+
 
 def get_users_by_assigned_patient(patientid):
     users = list(db.Accounts.find({}))
-    users[:] = [x for x in users if not determine(x,patientid)]
+    users[:] = [x for x in users if not determine(x, patientid)]
     return users
+
 
 def create_patient(patient, user_ids=None):
     patientid = db.HospitalPatients.insert_one(patient)
@@ -124,42 +123,54 @@ def delete_patients(patientids):
 
 
 def send_request(userid_sender, userid_receiver, patientids):
-    receiver = db.Accounts.find_one({"_id": ObjectId(userid_receiver)})
+    receiver = db.Accounts.find_one({"_id": ObjectId(userid_receiver[0])})
     sender = db.Accounts.find_one({"_id": ObjectId(userid_sender)})
 
     if patientids is not None:
         if sender is not None:
             if receiver is not None:
-                for p in patientids:
-                    if p in receiver["patients"]:
-                        if p["can_transfer"]:
-                            db.Accounts.find_one_and_update({"_id": receiver["_id"]},
-                                                            {"$push": {"pending_transfers": {"patient_id": p["_id"]},
-                                                                       "sender_id": sender["_id"]}})
-
-# def accept_requests(userid_receiver, patientids, accepting):
-#     receiver = db.Accounts.find_one({"_id": ObjectId(userid_receiver)})
-#     patients = []
-#     for p in patientids:
-#         temp=db.HospitalPatients.find_one({"_id": ObjectId(p)})
-#         if temp:
-#             patients.append(ObjectId(p))
-#
-#     if patients:
-#         if receiver:
-#             for p in patients:
-#                 senderid=None
-#                 senders=receiver["pending_transfer"]
-#                 db.Accounts.find_one_and_update({"_id": receiver["_id"]},
-#                                                 {"pull": {"pending_transfers": {"patient_id": p["_id"]}}})
-#
-#                 if accepting:
-#                     db.Accounts.find_one_and_update
-#                 else:
+                print(patientids)
+                p = ObjectId(patientids)
+                db.Accounts.find_one_and_update({"_id": receiver["_id"]},
+                                                {"$push": {"pending_transfers": {"patient_id": p,
+                                                           "sender_id": sender["_id"]}}})
+                db.HospitalPatients.find_one_and_update({"_id": p},
+                                                        {"$set": {"can_transfer": False}})
+                patient = db.HospitalPatients.find_one({"_id": p})
+                notification_string = sender["name"] + " esta queriendo transferirte a un paciente: " + patient[
+                    "name"] + " , ve a Transferir Pacientes para Aceptar o Denegar la derivación."
+                send_notification(str(receiver["_id"]), notification_string)
 
 
-# def process_request(userid_sender, userid_receiver, patientids, status):
+def process_request(userid_receiver, userid_sender, patientids, accepting):
+    receiver = db.Accounts.find_one({"_id": ObjectId(userid_receiver)})
+    patients = []
+    temp = db.HospitalPatients.find_one({"_id": (ObjectId(patientids["$oid"]))})
+    if temp:
+        patients.append((temp))
+    if patients:
+        if receiver:
+            for p in patients:
+                senderid = None
+                senders = receiver["pending_transfers"]
+                db.Accounts.find_one_and_update({"_id": receiver["_id"]},
+                                                {"$pull": {"pending_transfers": {"patient_id": p["_id"]}}})
+                db.HospitalPatients.find_one_and_update({"_id": p["_id"]},
+                                                        {"$set": {"can_transfer": True}})
+                if accepting:
+                    db.Accounts.find_one_and_update({"_id": ObjectId(userid_sender["$oid"])}, {"$pull": {"patients": p["_id"]}})
+                    db.Accounts.find_one_and_update({"_id": receiver["_id"]}, {"$push": {"patients": p["_id"]}})
 
+                else:
+                    pass
+
+
+def send_notification(userid, notification):
+    db.Accounts.find_one_and_update({"_id": ObjectId(userid)}, {"$push": {"notifications": notification}})
+
+
+def delete_notification(userid, notification):
+    db.Accounts.find_one_and_update({"_id": ObjectId(userid)}, {"$pull": {"notifications": notification}})
 
 
 if __name__ == '__main__':
