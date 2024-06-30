@@ -161,7 +161,7 @@ def get_single_patient(patientid):
             if not user_from_db['is_professor']:
                 del patients['illnesses'], patients['risk_factors']
             else:
-                users = FranMongoClient.get_users_by_assigned_patient(patientid)
+                users = FranMongoClient.FranMongo().get_users_by_assigned_patient(patientid)
                 if users:
                     temp = []
                     for u in users:
@@ -225,7 +225,7 @@ def delete_patient():
         if not user_from_db["is_professor"]:
             return jsonify({'msg': 'Forbidden, only Professors may delete patients.'}), 403
 
-        FranMongoClient.delete_patients(patient_ids["patient_ids"])
+        FranMongoClient.FranMongo.delete_patients(patient_ids["patient_ids"])
         return jsonify({'msg': 'Deleted Patients'}), 200
 
 
@@ -236,7 +236,7 @@ def delete_notification():
     current_user = get_jwt_identity()  # Get the identity of the current user
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
-        FranMongoClient.delete_notification(str(user_from_db["_id"]), notifications["notification"])
+        FranMongoClient.FranMongo.delete_notification(str(user_from_db["_id"]), notifications["notification"])
 
         return jsonify({'msg': 'Deleted notifications'}), 200
 
@@ -261,7 +261,7 @@ def send_transfer_request():
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
         if details["receiver_ids"] and details["patient_id"]:
-            FranMongoClient.send_request(str(user_from_db["_id"]), (details["receiver_ids"]),
+            FranMongoClient.FranMongo().send_request(str(user_from_db["_id"]), (details["receiver_ids"]),
                                          str(details["patient_id"]))
             return jsonify({'msg': 'Transfered Patient'}), 200
         else:
@@ -299,9 +299,9 @@ def reject_transfer():
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
         if "patient_id" in details and "user_id" in details:
-            FranMongoClient.process_request(str(user_from_db["_id"]), details["user_id"], details["patient_id"], False)
-            # FranMongoClient.assign_patient(details["patient_id"], user_from_db["_id"])
-            # FranMongoClient.unassign_patient(details["patient_id"], details["user_id"])
+            FranMongoClient.FranMongo().process_request(str(user_from_db["_id"]), details["user_id"], details["patient_id"], False)
+            # FranMongoClient.FranMongo.assign_patient(details["patient_id"], user_from_db["_id"])
+            # FranMongoClient.FranMongo.unassign_patient(details["patient_id"], details["user_id"])
             return jsonify({'msg': 'Transfered Patient'}), 200
         else:
             return jsonify({'msg': 'Missing info'}), 400
@@ -315,9 +315,9 @@ def accept_transfer():
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
         if "patient_id" in details and "user_id" in details:
-            FranMongoClient.process_request(str(user_from_db["_id"]), details["user_id"], details["patient_id"], True)
-            # FranMongoClient.assign_patient(details["patient_id"], user_from_db["_id"])
-            # FranMongoClient.unassign_patient(details["patient_id"], details["user_id"])
+            FranMongoClient.FranMongo().process_request(str(user_from_db["_id"]), details["user_id"], details["patient_id"], True)
+            # FranMongoClient.FranMongo.assign_patient(details["patient_id"], user_from_db["_id"])
+            # FranMongoClient.FranMongo.unassign_patient(details["patient_id"], details["user_id"])
             return jsonify({'msg': 'Transfered Patient'}), 200
         else:
             return jsonify({'msg': 'Missing info'}), 400
@@ -333,7 +333,7 @@ def assign_patient():
         if not user_from_db["is_professor"]:
             return jsonify({'msg': 'Forbidden, only Professors may assign patients.'}), 403
         if "patient_ids" in details and "user_ids" in details:
-            FranMongoClient.assign_patient(details["patient_ids"], details["user_ids"])
+            FranMongoClient.FranMongo().assign_patient(details["patient_ids"], details["user_ids"])
             return jsonify({'msg': 'Assigned Patients'}), 200
         else:
             return jsonify({'msg': 'Missing info'}), 400
@@ -349,7 +349,7 @@ def unassign_patient():
         if not user_from_db["is_professor"]:
             return jsonify({'msg': 'Forbidden, only Professors may unassign patients.'}), 403
         if "patient_ids" in details and "user_ids" in details:
-            FranMongoClient.unassign_patient(details["patient_ids"], details["user_ids"])
+            FranMongoClient.FranMongo().unassign_patient(details["patient_ids"], details["user_ids"])
             return jsonify({'msg': 'Unassigned Patients'}), 200
         else:
             return jsonify({'msg': 'Missing info'}), 400
@@ -407,7 +407,7 @@ def get_students_by_assigned_patient(patientid):
         if not user_from_db["is_professor"]:
             return jsonify(
                 {'msg': 'Forbidden, only Professors may get the list of students assigned to a patient'}), 403
-        users = FranMongoClient.get_users_by_assigned_patient(patientid)
+        users = FranMongoClient.FranMongo().get_users_by_assigned_patient(patientid)
         if users:
             temp = []
             for u in users:

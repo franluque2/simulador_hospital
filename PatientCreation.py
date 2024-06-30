@@ -3,6 +3,14 @@ import requests
 import random
 import illnesses
 from assets import female_names, male_names, last_names, image_assigner
+import PatientSimulation
+from enum import Enum
+
+class default_values(Enum):
+    PERSONAL_DATA="No Hay Datos Personales Relevantes"
+    FAMILY_DATA_FATHER="No hay precedentes importantes del lado paternal"
+    FAMILY_DATA_MOTHER="No hay precedentes importantes del lado maternal"
+    PHYS_EVAL="Parece estar en buen estado Fisico"
 
 
 def generate_rand_name(sex):
@@ -47,20 +55,20 @@ def generate_patient(args=None):
     if "personaldata" in args and args["personaldata"] is not None:
         patient["personaldata"] = args["personaldata"]
     else:
-        patient["personaldata"] = "No Hay Datos Personales Relevantes"
+        patient["personaldata"] = default_values.PERSONAL_DATA
 
     if "familydata" in args and args["familydata"] is not None:
         patient["familydata"] = args["familydata"]
     else:
         patient["familydata"] = {
-            "father": "No hay precedentes importantes del lado paternal",
-            "mother": "No hay precedentes importantes del lado maternal"
+            "father": default_values.FAMILY_DATA_FATHER,
+            "mother": default_values.FAMILY_DATA_MOTHER
         }  # TODO: GENERAR DATOS FAMILIARES
 
     if "physeval" in args and args["physeval"] is not None:
         patient["physeval"] = args["physeval"]
     else:
-        patient["physeval"] = "Parece estar en buen estado Fisico"  # TODO: GENERAR PHYSEVAL
+        patient["physeval"] = default_values.PHYS_EVAL  # TODO: GENERAR PHYSEVAL
 
     if "labs" in args and args["labs"] is not None:
         patient["labs"] = args["labs"]
@@ -98,41 +106,29 @@ def generate_patient(args=None):
         patient["health_attributes"] = args["health_attributes"]
     else:
         patient["health_attributes"] = {
-            # "red_cells": [random.randint(4500, 5900), random.randint(3200, 5130)][patient["sex"] == "M"],
-            # "white_cells": random.randint(3400, 9600),
-            # "plackets": [random.randint(137, 317), random.randint(157, 371)][patient["sex"] == "M"],
-            # "hemoglobin": [random.randint(132, 166), random.randint(116, 150)][patient["sex"] == "M"],
-            # "glucose": random.randint(70, 100),
-            # "creatine": random.randint(6, 13),
-            # "total_cholesterol": random.randint(120, 200),
-            # "hdl_cholesterol": random.randint(42, 90),
-            # "ldl_cholesterol": random.randint(100, 160),
-            # "triglycerides": [random.randint(30, 280), random.randint(30, 220)][patient["sex"] == "M"],
-            # "sodium": random.randint(135, 145),
-            # "potassium": random.randint(37, 52),
-            # "chlorine": random.randint(96, 106),
-            # "calcium": random.randint(85, 105),
-            # "uric_acid": random.randint(35, 72),
-            # "urea": random.randint(60, 200),
-            # "bilirubin": random.randint(3, 19)
-
-            "Celulas Rojas": [random.randint(4500, 5900), random.randint(3200, 5130)][patient["sex"] == "M"],
-            "Celulas Blancas": random.randint(3400, 9600),
-            "Plaquetas": [random.randint(137, 317), random.randint(157, 371)][patient["sex"] == "M"],
-            "Hemoglobina": [random.randint(132, 166), random.randint(116, 150)][patient["sex"] == "M"],
-            "Glucosa": random.randint(70, 100),
-            "Creatina": random.randint(6, 13),
-            "Colesterol Total": random.randint(120, 200),
-            "Colesterol HDL": random.randint(42, 90),
-            "Colesterol LDL": random.randint(100, 160),
-            "Trifliceridos": [random.randint(30, 280), random.randint(30, 220)][patient["sex"] == "M"],
-            "Sodio": random.randint(135, 145),
-            "Potasio": random.randint(37, 52),
-            "Clorina": random.randint(96, 106),
-            "Calcio": random.randint(85, 105),
-            "Ácido Úrico": random.randint(35, 72),
-            "Urea": random.randint(60, 200),
-            "Bilirubina": random.randint(3, 19)
+            "Celulas Rojas": {[random.randint(4500, 5900), random.randint(3200, 5130)][patient["sex"] == "M"], ""},
+            "Celulas Blancas": {random.randint(3400, 9600), ""},
+            "Plaquetas": {[random.randint(137, 317), random.randint(157, 371)][patient["sex"] == "M"], ""},
+            "Hemoglobina": {[random.randint(132, 166), random.randint(116, 150)][patient["sex"] == "M"], ""},
+            "Glucosa": {random.randint(70, 100), ""},
+            "Creatina": {random.randint(6, 13), ""},
+            "Colesterol Total": {random.randint(120, 200), ""},
+            "Colesterol HDL": {random.randint(42, 90), ""},
+            "Colesterol LDL": {random.randint(100, 160), ""},
+            "Trifliceridos": {[random.randint(30, 280), random.randint(30, 220)][patient["sex"] == "M"], ""},
+            "Sodio": {random.randint(135, 145), ""},
+            "Potasio": {random.randint(37, 52), ""},
+            "Clorina": {random.randint(96, 106), ""},
+            "Calcio": {random.randint(85, 105), ""},
+            "Ácido Úrico": {random.randint(35, 72), ""},
+            "Urea": {random.randint(60, 200), ""},
+            "Bilirubina": {random.randint(3, 19, "")},
+            "Tension Arterial Sistólica": {random.randint(90,139),"mmHg"},
+            "Tension Arterial Diastólica": {random.randint(60,89),"mmHg"},
+            "Leucocitos": {random.randint(4500,11000), "/mm3"},
+            "Recuento de Plaquetas": {random.randint(150000,400000), "/mm3"},
+            "Albúmina en Sangre": {random.randint(34,54)/10, "g/dL"},
+            "Hematocrito": {[random.randint(407, 503)/10, random.randint(361, 443)/10][patient["sex"] == "M"], "%"}
         }
 
     if "color" in args and (args["color"] is not None) and args["color"] != "1":
@@ -159,11 +155,12 @@ def generate_patient(args=None):
         patient["summary"] = "No hay Cambios Recientes"  # TODO: GENERAR RESUMEN
 
     patient["logs"] = {}
+    patient["unparsed_treatment"]=""
 
     if "user_ids" in args and args["user_ids"] is not None:
-        FranMongoClient.create_patient(patient, args["user_ids"])
+        FranMongoClient.FranMongo().create_patient(patient, args["user_ids"])
     else:
-        FranMongoClient.create_patient(patient)
+        FranMongoClient.FranMongo().create_patient(patient)
 
 
 if __name__ == '__main__':
