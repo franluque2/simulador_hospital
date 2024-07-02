@@ -9,7 +9,7 @@ class treatments(StrEnum):
 
 class Illness(object):
     def __init__(self):
-        self.name=""
+        self.name="Base"
         self.startTime=time()
 
     def proceed(self, name, treatment, patient):
@@ -20,3 +20,6 @@ class Illness(object):
 
     def parse_treatment(self, treatment_str: str, patient)->list[treatments]:
         return []
+    
+    def generate_symptoms(self, patient):
+        return

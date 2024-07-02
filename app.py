@@ -12,6 +12,7 @@ from flask_socketio import SocketIO, send, emit
 
 import PatientCreation
 import FranMongoClient
+import TreatmentParse
 
 app = Flask(__name__)
 CORS(app)
@@ -192,8 +193,11 @@ def update_treatment():
         patientidtemp = ObjectId(patientid)
         patients = patients_collection.find_one({'_id': patientidtemp})
         if patients:
+            treatmentlist=TreatmentParse.parse_treatment_string(treatment_details['treatment'])
             patients_collection.find_one_and_update({'_id': patientidtemp},
-                                                    {'$set': {'treatments': treatment_details['treatment']}})
+                                                    {'$set': {'treatments': treatmentlist}})
+            patients_collection.find_one_and_update({'_id': patientidtemp},
+                                                    {'$set': {'treatments_string': treatment_details['treatment']}})
             return jsonify({'msg': 'Updated Treatment'}), 200
         else:
             return jsonify({'msg': 'Patient not found'}), 404

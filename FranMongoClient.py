@@ -24,7 +24,6 @@ class FranMongo:
             val = 0
         else:
             val = val + num
-            print(val)
         db.HospitalPatients.find_one_and_update({"_id": ObjectId(id)}, {"$set": {"color": val}})
 
 

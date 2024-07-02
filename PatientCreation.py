@@ -5,6 +5,10 @@ import illnesses
 from assets import female_names, male_names, last_names, image_assigner
 import PatientSimulation
 from enum import Enum
+import TreatmentParse
+import FranOpenAiClient
+import illnesses.base
+import illnesses.hypertension
 
 class default_values(Enum):
     PERSONAL_DATA="No Hay Datos Personales Relevantes"
@@ -21,9 +25,11 @@ def generate_rand_name(sex):
     return "ERROR IN NAME GENERATION"
 
 
-def str_to_illness(illness, name):  # TODO: REEMPLAZAR POR UNA FUNCION DE VERDAD
-    if illness == "cancer":
-        return illnesses.cancer.Cancer(None, name)
+def str_to_illness(illness):
+    if illness == "debugbase":
+        return illnesses.base()
+    if illness == "Hipertension":
+        return illnesses.hypertension()
     else:
         pass
 
@@ -76,7 +82,8 @@ def generate_patient(args=None):
         patient["labs"] = {}  # TODO: PREGENERAR ESTUDIOS
 
     if "treatments" in args and args["treatments"] is not None:
-        patient["treatments"] = args["treatments"]
+        patient["treatments_string"]=args["treatments"]
+        patient["treatments"] = TreatmentParse.parse_treatment_string(args["treatments"])
     else:
         patient["treatments"] = ""
 
@@ -98,9 +105,9 @@ def generate_patient(args=None):
     if "illnesses" in args and args["illnesses"] is not None:
         patient["illnesses"] = []
         for i in range(len(args["illnesses"])):
-            patient["illnesses"][i] = (str_to_illness(args["illnesses"][i], patient["name"]))
+            patient["illnesses"][i] = (str_to_illness(args["illnesses"][i]))
     else:
-        patient["illnesses"] = ["cancer"]  # TODO: GENERAR PATOLOGIAS
+        patient["illnesses"] = ["hipertension"]
 
     if "health_attributes" in args and args["health_attributes"] is not None:
         patient["health_attributes"] = args["health_attributes"]
@@ -155,7 +162,19 @@ def generate_patient(args=None):
         patient["summary"] = "No hay Cambios Recientes"  # TODO: GENERAR RESUMEN
 
     patient["logs"] = {}
-    patient["unparsed_treatment"]=""
+
+    if "symptoms" in args and args["symptoms"] is not None:
+        patient["symptoms"] = args["symptoms"]
+    else:
+        patient["symptoms"] = []
+        for i in patient["illnesses"]:
+            i.generate_symptoms(patient)
+
+    
+    if "entry_interview" in args and args["entry_interview"] is not None:
+        patient["entry_interview"] = args["entry_interview"]
+    else:
+        patient["entry_interview"] = FranOpenAiClient.generate_clinical_interview(patient,patient["illnesses"][0], patient["symptoms"])
 
     if "user_ids" in args and args["user_ids"] is not None:
         FranMongoClient.FranMongo().create_patient(patient, args["user_ids"])
