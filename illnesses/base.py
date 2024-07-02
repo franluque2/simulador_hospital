@@ -1,11 +1,17 @@
 from time import time
 from strenum import StrEnum
-from PatientCreation import default_values
+import sys
+import os
+
+here = os.path.dirname(__file__)
+
+sys.path.append(os.path.join(here, '..'))
+
+from default_values import default_values
 
 class treatments(StrEnum):
     INSULINA="Insulina"
     LOSARTAN="Losartan"
-
 
 class Illness(object):
     def __init__(self):

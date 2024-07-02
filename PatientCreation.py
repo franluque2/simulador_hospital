@@ -9,12 +9,7 @@ import TreatmentParse
 import FranOpenAiClient
 import illnesses.base
 import illnesses.hypertension
-
-class default_values(Enum):
-    PERSONAL_DATA="No Hay Datos Personales Relevantes"
-    FAMILY_DATA_FATHER="No hay precedentes importantes del lado paternal"
-    FAMILY_DATA_MOTHER="No hay precedentes importantes del lado maternal"
-    PHYS_EVAL="Parece estar en buen estado Fisico"
+from default_values import default_values
 
 
 def generate_rand_name(sex):

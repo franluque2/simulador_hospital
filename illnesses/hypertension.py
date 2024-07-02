@@ -1,6 +1,13 @@
 from illnesses import base, statuses
 import random
-from PatientCreation import default_values
+import sys
+import os
+
+here = os.path.dirname(__file__)
+
+sys.path.append(os.path.join(here, '..'))
+
+from default_values import default_values
 
 class hypertension(base.Illness):
     def __init__(self):
