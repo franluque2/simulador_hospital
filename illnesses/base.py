@@ -19,7 +19,7 @@ class Illness(object):
         self.startTime=time()
 
     def proceed(self, name, treatment, patient):
-        return ""
+        return "", False
 
     def update_health_attributes(self, patient):
         return
