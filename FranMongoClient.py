@@ -6,7 +6,7 @@ import PatientSimulation
 
 client = MongoClient("localhost", 27017)
 
-db = client.Hospital
+db = client.hospital
 
 
 def str_to_illness(illness, name):
