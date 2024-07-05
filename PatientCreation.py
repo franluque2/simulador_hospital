@@ -20,12 +20,14 @@ def generate_rand_name(sex):
     return "ERROR IN NAME GENERATION"
 
 
-def str_to_illness(illness):
-    if illness == "debugbase":
-        return illnesses.base()
-    if illness == "Hipertension":
-        return illnesses.hypertension()
+def str_to_illness(illness: str) -> illnesses.base.Illness:
+    print(f"The Illness is: {illness.lower}")
+    if illness.lower == "debugbase":
+        return illnesses.base.Illness()
+    if illness.lower == "hipertension":
+        return illnesses.hypertension.hypertension()
     else:
+        return illnesses.hypertension.hypertension()
         pass
 
 
@@ -56,20 +58,20 @@ def generate_patient(args=None):
     if "personaldata" in args and args["personaldata"] is not None:
         patient["personaldata"] = args["personaldata"]
     else:
-        patient["personaldata"] = default_values.PERSONAL_DATA
+        patient["personaldata"] = default_values.PERSONAL_DATA.value
 
     if "familydata" in args and args["familydata"] is not None:
         patient["familydata"] = args["familydata"]
     else:
         patient["familydata"] = {
-            "father": default_values.FAMILY_DATA_FATHER,
-            "mother": default_values.FAMILY_DATA_MOTHER
+            "father": default_values.FAMILY_DATA_FATHER.value,
+            "mother": default_values.FAMILY_DATA_MOTHER.value
         }  # TODO: GENERAR DATOS FAMILIARES
 
     if "physeval" in args and args["physeval"] is not None:
         patient["physeval"] = args["physeval"]
     else:
-        patient["physeval"] = default_values.PHYS_EVAL  # TODO: GENERAR PHYSEVAL
+        patient["physeval"] = default_values.PHYS_EVAL.value  # TODO: GENERAR PHYSEVAL
 
     if "labs" in args and args["labs"] is not None:
         patient["labs"] = args["labs"]
@@ -97,11 +99,14 @@ def generate_patient(args=None):
     else:
         patient["interviews"] = {}  # TODO: GENERAR ENTREVISTAS
 
+    patientillness=illnesses.hypertension.hypertension()
     if "illnesses" in args and args["illnesses"] is not None:
-        patient["illnesses"] = []
-        for i in range(len(args["illnesses"])):
-            patient["illnesses"][i] = (str_to_illness(args["illnesses"][i]))
+        patient["illnesses"] = list()
+        illnesses_inner=args["illnesses"]
+        patientillness=str_to_illness(illnesses_inner)
+        patient["illnesses"] = args["illnesses"]
     else:
+        patientillness=str_to_illness("hipertension")
         patient["illnesses"] = ["hipertension"]
 
     if "health_attributes" in args and args["health_attributes"] is not None:
@@ -124,7 +129,7 @@ def generate_patient(args=None):
             "Calcio": {random.randint(85, 105), ""},
             "Ácido Úrico": {random.randint(35, 72), ""},
             "Urea": {random.randint(60, 200), ""},
-            "Bilirubina": {random.randint(3, 19, "")},
+            "Bilirubina": {random.randint(3, 19), ""},
             "Tension Arterial Sistólica": {random.randint(90,139),"mmHg"},
             "Tension Arterial Diastólica": {random.randint(60,89),"mmHg"},
             "Leucocitos": {random.randint(4500,11000), "/mm3"},
@@ -148,8 +153,7 @@ def generate_patient(args=None):
         patient["should_update"] = False
 
     if "illnesses" in args and args["illnesses"] is not None:
-        for i in patient["illnesses"]:
-            i.update_health_attributes(patient)
+        patientillness.update_health_attributes(patient)
 
     if "summary" in args and args["summary"] is not None:
         patient["summary"] = args["summary"]
@@ -162,14 +166,13 @@ def generate_patient(args=None):
         patient["symptoms"] = args["symptoms"]
     else:
         patient["symptoms"] = []
-        for i in patient["illnesses"]:
-            i.generate_symptoms(patient)
+        patientillness.generate_symptoms(patient)
 
     
     if "entry_interview" in args and args["entry_interview"] is not None:
         patient["entry_interview"] = args["entry_interview"]
     else:
-        patient["entry_interview"] = FranOpenAiClient.generate_clinical_interview(patient,patient["illnesses"][0], patient["symptoms"])
+        patient["entry_interview"] = FranOpenAiClient.generate_clinical_interview(patient,illness=patientillness,symptoms_list= patient["symptoms"])
 
     if "user_ids" in args and args["user_ids"] is not None:
         FranMongoClient.FranMongo().create_patient(patient, args["user_ids"])

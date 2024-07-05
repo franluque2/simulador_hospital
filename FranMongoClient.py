@@ -9,12 +9,6 @@ client = MongoClient("localhost", 27017)
 db = client.hospital
 
 
-def str_to_illness(illness, name):
-    if illness == "cancer":
-        return illnesses.base()._name_
-    else:
-        pass
-
 class FranMongo:
     def updatehealth(id, num):
         val = float(db.HospitalPatients.find_one({"_id": ObjectId(id)})["color"])
@@ -43,7 +37,7 @@ class FranMongo:
             # print(p['illnesses'])
             for i in p['illnesses']:
                 # print(x)
-                illnessesList.append(str_to_illness(i, p['name']))
+                illnessesList.append(PatientSimulation.str_to_illness(i, p['name']))
                 pass
             rt.append([p['name'], illnessesList, p['treatments'], p['_id']])
 

@@ -23,7 +23,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 client = MongoClient("mongodb://localhost:27017/")  # your connection string
-db = client["Hospital"]
+db = client["hospital"]
 users_collection = db["Accounts"]
 patients_collection = db["HospitalPatients"]
 
