@@ -13,5 +13,4 @@ def generate_clinical_interview(patient, illness: base, symptoms_list: list) -> 
      estas de momento sufriendo de {illness.name}, tienes el conocimiento promedio de alguien de tu edad, pero no sabes que tienes. "},
     {"role": "user", "content": f"Da una simple entrevista que darias a un doctor sobre los síntomas que estas padeciendo, siendo estos: {symptoms_list}. Habla solo monologando como un paciente que esta por hablarle al doctor, empezando asi: Hola Doctor/a, pues el alumno a partir de ello debe diagnosticarte."}
   ])
-    print(interviewreturn.choices[0].message.content)
     return interviewreturn.choices[0].message.content

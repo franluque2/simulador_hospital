@@ -112,31 +112,34 @@ def generate_patient(args=None):
     if "health_attributes" in args and args["health_attributes"] is not None:
         patient["health_attributes"] = args["health_attributes"]
     else:
-        patient["health_attributes"] = {
-            "Celulas Rojas": {[random.randint(4500, 5900), random.randint(3200, 5130)][patient["sex"] == "M"], ""},
-            "Celulas Blancas": {random.randint(3400, 9600), ""},
-            "Plaquetas": {[random.randint(137, 317), random.randint(157, 371)][patient["sex"] == "M"], ""},
-            "Hemoglobina": {[random.randint(132, 166), random.randint(116, 150)][patient["sex"] == "M"], ""},
-            "Glucosa": {random.randint(70, 100), ""},
-            "Creatina": {random.randint(6, 13), ""},
-            "Colesterol Total": {random.randint(120, 200), ""},
-            "Colesterol HDL": {random.randint(42, 90), ""},
-            "Colesterol LDL": {random.randint(100, 160), ""},
-            "Trifliceridos": {[random.randint(30, 280), random.randint(30, 220)][patient["sex"] == "M"], ""},
-            "Sodio": {random.randint(135, 145), ""},
-            "Potasio": {random.randint(37, 52), ""},
-            "Clorina": {random.randint(96, 106), ""},
-            "Calcio": {random.randint(85, 105), ""},
-            "Ácido Úrico": {random.randint(35, 72), ""},
-            "Urea": {random.randint(60, 200), ""},
-            "Bilirubina": {random.randint(3, 19), ""},
-            "Tension Arterial Sistólica": {random.randint(90,139),"mmHg"},
-            "Tension Arterial Diastólica": {random.randint(60,89),"mmHg"},
-            "Leucocitos": {random.randint(4500,11000), "/mm3"},
-            "Recuento de Plaquetas": {random.randint(150000,400000), "/mm3"},
-            "Albúmina en Sangre": {random.randint(34,54)/10, "g/dL"},
-            "Hematocrito": {[random.randint(407, 503)/10, random.randint(361, 443)/10][patient["sex"] == "M"], "%"}
+        
+        health_atts = {
+                "Celulas Rojas": [random.randint(4500, 5900), ""],
+                "Celulas Blancas": [random.randint(3400, 9600), ""],
+                "Plaquetas": [random.randint(137, 317) if patient["sex"] == "M" else random.randint(157, 371), ""],
+                "Hemoglobina": [random.randint(132, 166) if patient["sex"] == "M" else random.randint(116, 150), ""],
+                "Glucosa": [random.randint(70, 100), ""],
+                "Creatina": [random.randint(6, 13), ""],
+                "Colesterol Total": [random.randint(120, 200), ""],
+                "Colesterol HDL": [random.randint(42, 90), ""],
+                "Colesterol LDL": [random.randint(100, 160), ""],
+                "Trifliceridos": [random.randint(30, 280) if patient["sex"] == "M" else random.randint(30, 220), ""],
+                "Sodio": [random.randint(135, 145), ""],
+                "Potasio": [random.randint(37, 52), ""],
+                "Clorina": [random.randint(96, 106), ""],
+                "Calcio": [random.randint(85, 105), ""],
+                "Ácido Úrico": [random.randint(35, 72), ""],
+                "Urea": [random.randint(60, 200), ""],
+                "Bilirubina": [random.randint(3, 19), ""],
+                "Tension Arterial Sistólica": [random.randint(90, 139), "mmHg"],
+                "Tension Arterial Diastólica": [random.randint(60, 89), "mmHg"],
+                "Leucocitos": [random.randint(4500, 11000), "/mm3"],
+                "Recuento de Plaquetas": [random.randint(150000, 400000), "/mm3"],
+                "Albúmina en Sangre": [random.randint(34, 54) / 10, "g/dL"],
+                "Hematocrito": [random.randint(407, 503) / 10 if patient["sex"] == "M" else random.randint(361, 443) / 10, "%"]
+
         }
+        patient["health_attributes"]=health_atts
 
     if "color" in args and (args["color"] is not None) and args["color"] != "1":
         patient["color"] = args["color"]
@@ -173,7 +176,7 @@ def generate_patient(args=None):
         patient["entry_interview"] = args["entry_interview"]
     else:
         patient["entry_interview"] = FranOpenAiClient.generate_clinical_interview(patient,illness=patientillness,symptoms_list= patient["symptoms"])
-
+#
     if "user_ids" in args and args["user_ids"] is not None:
         FranMongoClient.FranMongo().create_patient(patient, args["user_ids"])
     else:
