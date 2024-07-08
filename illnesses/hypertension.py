@@ -15,8 +15,8 @@ class hypertension(base.Illness):
         self.name="Hipertension"
     
 
-    def proceed(self, name, treatment, patient):
-        return "", True
+    def proceed(self, name, treatment, patient) -> list[statuses.Status, bool]:
+        return statuses.Status.CONTINUE, False
 
     def update_health_attributes(self, patient):
         pat_healthatts=patient["health_attributes"]
