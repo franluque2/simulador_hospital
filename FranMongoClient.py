@@ -3,6 +3,7 @@ from pymongo import MongoClient
 import illnesses
 from bson.objectid import ObjectId
 import PatientSimulation
+import PatientCreation
 
 client = MongoClient("localhost", 27017)
 
@@ -10,7 +11,7 @@ db = client.hospital
 
 
 class FranMongo:
-    def updatehealth(id, num):
+    def updatehealth(self, id, num):
         val = float(db.HospitalPatients.find_one({"_id": ObjectId(id)})["color"])
         if (val + num) > 1:
             val = 1
@@ -21,15 +22,15 @@ class FranMongo:
         db.HospitalPatients.find_one_and_update({"_id": ObjectId(id)}, {"$set": {"color": val}})
 
 
-    def gettreatment(id):
+    def gettreatment(self, id):
         return db.HospitalPatients.find_one({"_id": ObjectId(id)})['treatments']
 
 
-    def get_health(id):
+    def get_health(self,id):
         return db.HospitalPatients.find_one({"_id": ObjectId(id)})['color']
 
 
-    def import_clients_from_db():
+    def import_clients_from_db(self):
         rt = []
         patients = list(db.HospitalPatients.find({}))
         for p in patients:
@@ -37,14 +38,14 @@ class FranMongo:
             # print(p['illnesses'])
             for i in p['illnesses']:
                 # print(x)
-                illnessesList.append(PatientSimulation.str_to_illness(i, p['name']))
+                illnessesList.append(PatientCreation.str_to_illness(p['name']))
                 pass
             rt.append([p['name'], illnessesList, p['treatments'], p['_id']])
 
         return rt
 
 
-    def insert_client_in_db(name, illnesses=None, treatments=None):
+    def insert_client_in_db(self, name, illnesses=None, treatments=None):
         if illnesses is None:
             illnesses = []
         if treatments is None:
@@ -56,15 +57,15 @@ class FranMongo:
         })
 
 
-    def delete_client_in_db(id):
+    def delete_client_in_db(self, id):
         db.HospitalPatients.delete_many({'_id': id})
 
 
-    def delete_client_in_db_by_name(name):
+    def delete_client_in_db_by_name(self, name):
         db.HospitalPatients.delete_many({'name': name})
 
 
-    def getUsers():
+    def getUsers(self):
         return db.Accounts.find({})
 
 

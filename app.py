@@ -229,7 +229,7 @@ def delete_patient():
         if not user_from_db["is_professor"]:
             return jsonify({'msg': 'Forbidden, only Professors may delete patients.'}), 403
 
-        FranMongoClient.FranMongo.delete_patients(patient_ids["patient_ids"])
+        FranMongoClient.FranMongo().delete_patients(patient_ids["patient_ids"])
         return jsonify({'msg': 'Deleted Patients'}), 200
 
 
@@ -240,7 +240,7 @@ def delete_notification():
     current_user = get_jwt_identity()  # Get the identity of the current user
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
-        FranMongoClient.FranMongo.delete_notification(str(user_from_db["_id"]), notifications["notification"])
+        FranMongoClient.FranMongo().delete_notification(str(user_from_db["_id"]), notifications["notification"])
 
         return jsonify({'msg': 'Deleted notifications'}), 200
 
@@ -280,7 +280,7 @@ def get_transfers():
     if user_from_db:
         temp = []
         transfer_requests = user_from_db["pending_transfers"]
-        if transfer_requests:
+        if transfer_requests and len(transfer_requests)>0:
             for transf in transfer_requests:
                 item = {'patientid': transf["patient_id"],
                         'senderid': transf["sender_id"],

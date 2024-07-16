@@ -22,31 +22,31 @@ class patient_executor:
         self.mongoclient=mongoclient
 
     def run(self):
-        if illnesses is None:
-            illnesses = []
-        if treatment is None:
-            treatment = []
+        if self.illnesses is None:
+            self.illnesses = []
+        if self.treatment is None:
+            self.treatment = []
         shouldRun = True
         while shouldRun:
-            treatment = self.mongoclient.gettreatment(id)
-            health = self.mongoclient.get_health(id)
+            self.treatment = self.mongoclient.gettreatment(self.id)
+            health = self.mongoclient.get_health(self.id)
             # print(treatment)
             changed = False
 
-            for i in illnesses:
+            for i in self.illnesses:
                 status = None
                 if i is not None:
-                    status, changed = i.proceed(self.pname, treatment, health, self.mongoclient)
+                    status, changed = i.proceed(self.pname, self.treatment, health, self.mongoclient)
                 if status.value == Status.DEAD:
                     shouldRun = False
                 if status == Status.CURED:
-                    illnesses.remove(i)
+                    self.illnesses.remove(i)
                     changed = True
-            if illnesses == []:
+            if self.illnesses == []:
                 shouldRun = False
                 changed = True
             if changed:
-                requests.post("http://localhost:5000/api/v1/inner/updatesims", json={'id_patient': str(id)})
+                requests.post("http://localhost:5000/api/v1/inner/updatesims", json={'id_patient': str(self.id)})
             time.sleep(TICK_TIME)
 
 
@@ -54,6 +54,7 @@ def setup(patients: list, mongoclient: FranMongoClient) -> list:
     plist=[]
     for idx, p in enumerate(patients):
         plist.append(patient_executor(p[0], p[1], p[2], p[3], mongoclient))
+    return plist
 
 def add_patient_sim(patient: patient_executor, mongoclient: FranMongoClient):
     thread=threading.Thread(target=patient.run())
@@ -63,7 +64,7 @@ def start_sim():
     random.seed()
     mongoclient=FranMongoClient.FranMongo()
     patients = mongoclient.import_clients_from_db()
-    plist=setup(patients, FranMongoClient.MongoClient())
+    plist=setup(patients, FranMongoClient.FranMongo())
     threadlist=[]
     for p in plist:
         thread=threading.Thread(target=p.run())

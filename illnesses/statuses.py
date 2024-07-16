@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, StrEnum
 
 class Status(Enum):
     CONTINUE= 0,
@@ -6,3 +6,7 @@ class Status(Enum):
     DAMAGE = 2,
     CURED = 3,
     DEAD = 4
+
+class treatments(StrEnum):
+    INSULINA="Insulina"
+    LOSARTAN="Losartan"

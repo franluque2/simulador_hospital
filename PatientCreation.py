@@ -89,11 +89,6 @@ def generate_patient(args=None):
     else:
         patient["risk_factors"] = "No posee Factores de Riesgo"  # TODO: GENERAR FACTORES DE RIESGO
 
-    if "motive" in args and args["motive"] is not None:
-        patient["motive"] = args["motive"]
-    else:
-        patient["motive"] = "Chequeo Medico"  # TODO: GENERAR MOTIVO
-
     if "interviews" in args and args["interviews"] is not None:
         patient["interviews"] = args["interviews"]
     else:
@@ -172,11 +167,11 @@ def generate_patient(args=None):
         patientillness.generate_symptoms(patient)
 
     
-    if "entry_interview" in args and args["entry_interview"] is not None:
-        patient["entry_interview"] = args["entry_interview"]
+    if "motive" in args and args["motive"] is not None:
+        patient["motive"] = args["motive"]
     else:
-        patient["entry_interview"] = FranOpenAiClient.generate_clinical_interview(patient,illness=patientillness,symptoms_list= patient["symptoms"])
-#
+        patient["motive"] = FranOpenAiClient.generate_clinical_interview(patient,illness=patientillness,symptoms_list= patient["symptoms"])
+
     if "user_ids" in args and args["user_ids"] is not None:
         FranMongoClient.FranMongo().create_patient(patient, args["user_ids"])
     else:

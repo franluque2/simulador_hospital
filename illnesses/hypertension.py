@@ -2,6 +2,7 @@ from illnesses import base, statuses
 import random
 import sys
 import os
+import FranMongoClient
 
 here = os.path.dirname(__file__)
 
@@ -15,7 +16,7 @@ class hypertension(base.Illness):
         self.name="Hipertension"
     
 
-    def proceed(self, name, treatment, patient) -> list[statuses.Status, bool]:
+    def proceed(self, name, treatment, patient, mongoclient) -> list[statuses.Status, bool]:
         return statuses.Status.CONTINUE, False
 
     def update_health_attributes(self, patient):

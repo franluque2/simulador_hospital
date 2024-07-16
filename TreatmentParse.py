@@ -1,4 +1,4 @@
-from illnesses.base import treatments
+from illnesses.statuses import treatments
 
 from fuzzysearch import find_near_matches
 
