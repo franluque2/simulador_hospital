@@ -439,6 +439,21 @@ def updatecurrentsims():
     return jsonify({'data': True}), 200
 
 
+@app.route("/api/v1/inner/senddangernotification", methods=["POST"])
+def senddangernotification():
+    patientid = request.get_json()['id_patient']
+    patient = patients_collection.find_one({'_id': ObjectId(patientid)})
+    del patient['illnesses'], patient['risk_factors']
+    patient["_id"] = str(patient["_id"])
+
+    users = FranMongoClient.FranMongo().get_users_by_assigned_patient(patientid)
+    if users:
+        for u in users:
+            socketio.emit('patient danger', {'patient': json.loads(dumps(patient))}, to=u["email"])
+    return jsonify({'data': True}), 200
+
+
+
 if __name__ == '__main__':
     # app.run(debug=True, host="0.0.0.0", threaded=True)
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

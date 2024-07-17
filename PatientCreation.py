@@ -9,6 +9,11 @@ import TreatmentParse
 import FranOpenAiClient
 import illnesses.base
 import illnesses.hypertension
+import illnesses.diabetes_tipo_dos
+import illnesses.dengue
+import illnesses.obesidad
+
+
 from default_values import default_values
 
 
@@ -21,11 +26,16 @@ def generate_rand_name(sex):
 
 
 def str_to_illness(illness: str) -> illnesses.base.Illness:
-    print(f"The Illness is: {illness.lower}")
-    if illness.lower == "debugbase":
+    if str(illness).lower == "debugbase":
         return illnesses.base.Illness()
-    if illness.lower == "hipertension":
+    if str(illness).lower == "hipertension":
         return illnesses.hypertension.hypertension()
+    if str(illness).lower == "dengue":
+        return illnesses.dengue.dengue()
+    if str(illness).lower == "diabetes":
+        return illnesses.diabetes_tipo_dos.diabetes_tipo_dos()
+    if str(illness).lower == "obesidad":
+        return illnesses.obesidad.obesidad()
     else:
         return illnesses.hypertension.hypertension()
         pass

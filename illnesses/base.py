@@ -28,3 +28,6 @@ class Illness(object):
     
     def generate_symptoms(self, patient):
         return
+    
+    def __str__(self) -> str:
+        return self.name

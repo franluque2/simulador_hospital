@@ -88,7 +88,7 @@ class FranMongo:
         if user_ids is not None:
             for u in user_ids:
                 db.Accounts.find_one_and_update({"_id": ObjectId(u)}, {"$push": {"patients": patientid.inserted_id}})
-                PatientSimulation.add_patient_sim(PatientSimulation.patient_executor(patient["name"], patient["illnesses"], patient["treatments"], patientid.inserted_id, self))
+                PatientSimulation.add_patient_sim(PatientSimulation.patient_executor(patient["name"], patient["illnesses"], patient["treatments"], patientid.inserted_id, self), self)
 
 
 

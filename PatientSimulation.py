@@ -5,7 +5,7 @@ import requests
 from illnesses.statuses import Status
 import threading
 import time
-
+import PatientCreation
 
 RANDOM_SEED = 42
 TICK_TIME = 5
@@ -36,12 +36,18 @@ class patient_executor:
             for i in self.illnesses:
                 status = None
                 if i is not None:
-                    status, changed = i.proceed(self.pname, self.treatment, health, self.mongoclient)
+                    status, changed = PatientCreation.str_to_illness(i).proceed(self.pname, self.treatment, health, self.mongoclient)
                 if status.value == Status.DEAD:
                     shouldRun = False
+                    requests.post("http://localhost:5000/api/v1/inner/senddangernotification", json={'id_patient': str(self.id)})
                 if status == Status.CURED:
                     self.illnesses.remove(i)
                     changed = True
+                    requests.post("http://localhost:5000/api/v1/inner/senddangernotification", json={'id_patient': str(self.id)})
+
+                if status ==Status.IMPORTANT_CHANGE:
+                    requests.post("http://localhost:5000/api/v1/inner/senddangernotification", json={'id_patient': str(self.id)})
+
             if self.illnesses == []:
                 shouldRun = False
                 changed = True

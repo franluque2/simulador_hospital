@@ -10,15 +10,13 @@ sys.path.append(os.path.join(here, '..'))
 
 from default_values import default_values, symptoms
 
-class hypertension(base.Illness):
+class dengue(base.Illness):
     def __init__(self):
         super().__init__()
-        self.name="Hipertension"
+        self.name="Dengue"
     
 
     def proceed(self, name, treatment, patient, mongoclient) -> list[statuses.Status, bool]:
-        if statuses.treatments.ASPIRINA in treatment:
-            pass
         return statuses.Status.IMPORTANT_CHANGE, False
 
     def update_health_attributes(self, patient):
