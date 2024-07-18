@@ -17,22 +17,39 @@ class hypertension(base.Illness):
         self.name="Hipertension"
     
 
-    def proceed(self, name, treatment, patient, mongoclient) -> list[statuses.Status, bool]:
-        print(patient)
+    def proceed(self, name, treatment, patient, mongoclient) -> list[statuses.Status, bool, object]:
         if patient["total_ticks"]<5:
-            return statuses.Status.CONTINUE, False
+            return statuses.Status.CONTINUE, False, patient
         pat_healthatts=patient["health_attributes"]
 
+        if statuses.treatments.LOSARTAN in treatment:
+            pat_healthatts["Tension Arterial Sistólica"][0]=random.randint(90,120)
+            pat_healthatts["Tension Arterial Diastólica"][0]=random.randint(60,89)
+            return statuses.Status.CURED, True, patient
         
+        if statuses.treatments.ENALAPRIL in treatment:
+            pat_healthatts["Tension Arterial Sistólica"][0]=random.randint(90,120)
+            pat_healthatts["Tension Arterial Diastólica"][0]=random.randint(60,89)
+            return statuses.Status.CURED, True, patient
+        
+        if statuses.treatments.HIDROCLOROTIZIDA in treatment:
+            pat_healthatts["Tension Arterial Sistólica"][0]=random.randint(90,120)
+            pat_healthatts["Tension Arterial Diastólica"][0]=random.randint(60,89)
+            return statuses.Status.CURED, True, patient
+
+        if statuses.treatments.AMLODIPINA in treatment:
+            pat_healthatts["Tension Arterial Sistólica"][0]=random.randint(90,120)
+            pat_healthatts["Tension Arterial Diastólica"][0]=random.randint(60,89)
+            return statuses.Status.CURED, True, patient  
+      
         if pat_healthatts["Tension Arterial Sistólica"][0]>180 or pat_healthatts["Tension Arterial Diastólica"][0]>110:
             patient["color"]=0
             patient["summary"]="Recibió un ACV"
-            return statuses.Status.DEAD, True
+            return statuses.Status.DEAD, True, patient
 
         pat_healthatts["Tension Arterial Sistólica"][0]=pat_healthatts["Tension Arterial Sistólica"][0]+random.randint(10,25)
         pat_healthatts["Tension Arterial Diastólica"][0]=pat_healthatts["Tension Arterial Diastólica"][0]+random.randint(10,25)
-        mongoclient.update_patient(patient["_id"],patient)
-        return statuses.Status.CONTINUE, False
+        return super().proceed(name, treatment, patient, mongoclient)
 
     def update_health_attributes(self, patient):
         pat_healthatts=patient["health_attributes"]
