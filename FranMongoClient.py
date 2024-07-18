@@ -28,6 +28,14 @@ class FranMongo:
 
     def get_health(self,id):
         return db.HospitalPatients.find_one({"_id": ObjectId(id)})['color']
+    
+    def get_tick_time(self,id):
+        return db.HospitalPatients.find_one({"_id": ObjectId(id)})['tick_time']
+    
+    def update_patient(self,id,patient):
+        db.HospitalPatients.replace_one({"_id": ObjectId(id)},
+                                        patient)
+       
 
 
     def import_clients_from_db(self):
@@ -157,6 +165,10 @@ class FranMongo:
 
                     else:
                         pass
+
+    def increasetotalticks(self, id):
+        patient_total_ticks=db.HospitalPatients.find_one({"_id": ObjectId(id)})['total_ticks']
+        db.HospitalPatients.find_one_and_update({"_id": ObjectId(id)}, {"$set": {"total_ticks": patient_total_ticks+1}})
 
 
     def send_notification(self, userid, notification):

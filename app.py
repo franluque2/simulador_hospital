@@ -9,8 +9,10 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from pymongo import MongoClient
 from flask_cors import CORS
 from flask_socketio import SocketIO, send, emit
+from FranWhatsappClient import sendWhatsAppMessage
 
 import PatientCreation
+import PatientSimulation
 import FranMongoClient
 import TreatmentParse
 
@@ -63,10 +65,20 @@ def change_details():
     user_from_db = users_collection.find_one({'email': current_user})
     change_details_account = request.get_json()
     if user_from_db:
-        if change_details_account["password_old"] and change_details_account["password_new"] and hashlib.sha256(
+        if "password_old" in change_details_account and change_details_account["password_old"] and change_details_account["password_new"] and hashlib.sha256(
                 change_details_account['password_old'].encode("utf-8")).hexdigest() == user_from_db["password"]:
-            user_from_db["password"] = change_details_account["password_new"]
-        return jsonify({'msg': "Changed Password"}), 200
+            users_collection.update_one(
+            {'email': current_user}, 
+            {'$set': {'password': change_details_account["password_new"]}}
+        ) 
+            return jsonify({'msg': "Changed Password"}), 200
+        if "should_receive_whatsapp_notifications" in change_details_account:
+            users_collection.update_one(
+            {'email': current_user}, 
+            {'$set': {'should_receive_whatsapp_notifications': change_details_account["should_receive_whatsapp_notifications"]}}
+        )     
+            return jsonify({'msg': "Changed Whatsapp Notification Options"}), 200
+
     else:
         return jsonify({'msg': 'Profile not found'}), 404
 
@@ -450,6 +462,9 @@ def senddangernotification():
     if users:
         for u in users:
             socketio.emit('patient danger', {'patient': json.loads(dumps(patient))}, to=u["email"])
+            #Remove False when ready to test whatsapp messages
+            if False and u["should_receive_whatsapp_notifications"]==True and len(u["phone_number"])==12:
+                sendWhatsAppMessage(f'Tu Paciente {patient["name"]} ha tenido cambios importantes en el simulador!', u["phone_number"])
     return jsonify({'data': True}), 200
 
 
@@ -457,3 +472,4 @@ def senddangernotification():
 if __name__ == '__main__':
     # app.run(debug=True, host="0.0.0.0", threaded=True)
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    PatientSimulation.start_sim()

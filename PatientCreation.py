@@ -119,29 +119,27 @@ def generate_patient(args=None):
     else:
         
         health_atts = {
-                "Celulas Rojas": [random.randint(4500, 5900), ""],
-                "Celulas Blancas": [random.randint(3400, 9600), ""],
-                "Plaquetas": [random.randint(137, 317) if patient["sex"] == "M" else random.randint(157, 371), ""],
-                "Hemoglobina": [random.randint(132, 166) if patient["sex"] == "M" else random.randint(116, 150), ""],
-                "Glucosa": [random.randint(70, 100), ""],
-                "Creatina": [random.randint(6, 13), ""],
-                "Colesterol Total": [random.randint(120, 200), ""],
-                "Colesterol HDL": [random.randint(42, 90), ""],
-                "Colesterol LDL": [random.randint(100, 160), ""],
-                "Trifliceridos": [random.randint(30, 280) if patient["sex"] == "M" else random.randint(30, 220), ""],
-                "Sodio": [random.randint(135, 145), ""],
-                "Potasio": [random.randint(37, 52), ""],
-                "Clorina": [random.randint(96, 106), ""],
-                "Calcio": [random.randint(85, 105), ""],
-                "Ácido Úrico": [random.randint(35, 72), ""],
-                "Urea": [random.randint(60, 200), ""],
-                "Bilirubina": [random.randint(3, 19), ""],
+                "Globuloa Rojos": [random.randint(4500000, 5900000), "celulas/mcL"],
+                "Globulos Blancos": [random.randint(4500, 10000), "leucocitos/mm3"],
+                "Plaquetas": [random.randint(150000, 450000), "plaquetas/mm3"],
+                "Hemoglobina": [random.randint(13, 16), "g/dl"],
+                "Glucosa": [random.randint(80, 100), "mg/dl"],
+                "Creatinina": [random.randint(6, 10)/10, "mg/dl"],
+                "Colesterol Total": [random.randint(120, 200), "mg/dl"],
+                "Colesterol HDL": [random.randint(42, 90), "mg/dl"],
+                "Colesterol LDL": [random.randint(80, 110), "mg/dl"],
+                "Trigliceridos": [random.randint(30, 150), "mg/dl"],
+                "Sodio": [random.randint(135, 145), "mEq/L"],
+                "Potasio": [random.randint(37, 52)/10, "mEq/L"],
+                "Cloro": [random.randint(96, 106), "mEq/L"],
+                "Calcio": [random.randint(85, 105)/10, "mg/dl"],
+                "Ácido Úrico": [random.randint(35, 72)/10, "mg/dl"],
+                "Urea": [random.randint(6, 24), "mg/dL"],
+                "Bilirrubina": [random.randint(3, 14)/10, "mg/dl"],
                 "Tension Arterial Sistólica": [random.randint(90, 139), "mmHg"],
                 "Tension Arterial Diastólica": [random.randint(60, 89), "mmHg"],
-                "Leucocitos": [random.randint(4500, 11000), "/mm3"],
-                "Recuento de Plaquetas": [random.randint(150000, 400000), "/mm3"],
-                "Albúmina en Sangre": [random.randint(34, 54) / 10, "g/dL"],
-                "Hematocrito": [random.randint(407, 503) / 10 if patient["sex"] == "M" else random.randint(361, 443) / 10, "%"]
+                "Albúmina en Sangre": [random.randint(34, 54)/ 10, "g/dL"],
+                "Hematocrito": [random.randint(38, 44), "%"],
 
         }
         patient["health_attributes"]=health_atts
@@ -161,13 +159,19 @@ def generate_patient(args=None):
         patient["should_update"] = False
 
     if "illnesses" in args and args["illnesses"] is not None:
-        patientillness.update_health_attributes(patient)
+        patient=patientillness.update_health_attributes(patient)
 
     if "summary" in args and args["summary"] is not None:
         patient["summary"] = args["summary"]
     else:
         patient["summary"] = "No hay Cambios Recientes"  # TODO: GENERAR RESUMEN
 
+    if "tick_time" in args and args["tick_time"] is not None:
+        patient["tick_time"] = args["tick_time"]
+    else:
+        patient["tick_time"] = 1
+
+    patient["total_ticks"]=0
     patient["logs"] = {}
 
     if "symptoms" in args and args["symptoms"] is not None:

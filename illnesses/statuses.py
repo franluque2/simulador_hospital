@@ -29,4 +29,4 @@ class treatments(StrEnum):
     AMLODIPINA="Amlodipina"
     HIDROCLOROTIZIDA="Hidroclorotizida"
     AMOXICILINA="Amoxicilina"
-    METIFORMINA="Metiformina"
+    
