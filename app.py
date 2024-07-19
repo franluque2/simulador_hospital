@@ -89,9 +89,12 @@ def profile():
     current_user = get_jwt_identity()  # Get the identity of the current user
     user_from_db = users_collection.find_one({'email': current_user})
     if user_from_db:
-        del user_from_db['_id'], user_from_db['password'], user_from_db[
-            'patients'], user_from_db["notifications"], user_from_db[
+        del user_from_db['_id'], user_from_db['password'], user_from_db["notifications"], user_from_db[
             "pending_transfers"]  # delete data we don't want to return
+        temparray=[]
+        for i in user_from_db['patients']:
+            temparray.append(str(i))
+        user_from_db['patients']=temparray
         return jsonify({'profile': user_from_db}), 200
     else:
         return jsonify({'msg': 'Profile not found'}), 404
@@ -243,6 +246,20 @@ def delete_patient():
 
         FranMongoClient.FranMongo().delete_patients(patient_ids["patient_ids"])
         return jsonify({'msg': 'Deleted Patients'}), 200
+
+@app.route("/api/v1/patient/toggle_patient", methods=["POST"])
+@jwt_required()
+def toggle_patient_status():
+    patient_details = request.get_json()
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        if not user_from_db["is_professor"]:
+            return jsonify({'msg': 'Forbidden, only Professors may delete patients.'}), 403
+        
+        FranMongoClient.FranMongo().toggle_patient_status(patient_details["patient_id"], patient_details["should_update"])
+        return jsonify({'msg': 'Updated Patient'}), 200
+
 
 
 @app.route("/api/v1/delete_notifications", methods=["POST"])
@@ -447,7 +464,7 @@ def updatecurrentsims():
     del patient['illnesses'], patient['risk_factors']
     patient["_id"] = str(patient["_id"])
 
-    socketio.emit('update patient', {'patient': json.loads(dumps(patient))}, broadcast=True)
+    socketio.emit('update patient', {'patient': json.loads(dumps(patient))})
     return jsonify({'data': True}), 200
 
 
@@ -461,7 +478,7 @@ def senddangernotification():
     users = FranMongoClient.FranMongo().get_users_by_assigned_patient(patientid)
     if users:
         for u in users:
-            socketio.emit('patient danger', {'patient': json.loads(dumps(patient))}, to=u["email"])
+            socketio.emit('patient danger', {'patient': json.loads(dumps(patient))})
             #Remove False when ready to test whatsapp messages
             if False and u["should_receive_whatsapp_notifications"]==True and len(u["phone_number"])==12:
                 sendWhatsAppMessage(f'Tu Paciente {patient["name"]} ha tenido cambios importantes en el simulador!', u["phone_number"])
@@ -471,5 +488,5 @@ def senddangernotification():
 
 if __name__ == '__main__':
     # app.run(debug=True, host="0.0.0.0", threaded=True)
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
     PatientSimulation.start_sim()
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

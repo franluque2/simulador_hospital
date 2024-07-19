@@ -3,6 +3,7 @@ import random
 import sys
 import os
 import FranMongoClient
+import numpy as np
 
 here = os.path.dirname(__file__)
 
@@ -23,32 +24,29 @@ class dengue(base.Illness):
 
             if statuses.treatments.IBUPROFENO in treatment:
                 pat_healthatts["Plaquetas"]=pat_healthatts["Plaquetas"]-random.randint(5,15)
-                if pat_healthatts["Plaquetas"]<150000:
-                    patient["color"]=0
-                    patient["summary"]="Plaquetopenia"
-                    return statuses.Status.DEAD, True, patient
+
             
             if statuses.treatments.ASPIRINA in treatment:
                 pat_healthatts["Plaquetas"]=pat_healthatts["Plaquetas"]-random.randint(5,15)
-                if pat_healthatts["Plaquetas"]<150000:
-                    patient["color"]=0
-                    patient["summary"]="Plaquetopenia"
-                    return statuses.Status.DEAD, True, patient
+
                 
             if (statuses.treatments.PARACETAMOL in treatment) and (statuses.treatments.HIDRATACION in treatment):
                 pat_healthatts["Globulos Blancos"][0]=pat_healthatts["Globulos Blancos"][0]+((10000-pat_healthatts["Globulos Blancos"][0]/2))
                 pat_healthatts["Plaquetas"][0]=pat_healthatts["Plaquetas"][0]+(450000-pat_healthatts["Plaquetas"][0]/2)
-                
-                if (450000-pat_healthatts["Plaquetas"][0]<50000):
-                    return statuses.Status.CURED, True, patient
-        
-            if pat_healthatts["Tension Arterial Sistólica"][0]>180 or pat_healthatts["Tension Arterial Diastólica"][0]>110:
-                patient["color"]=0
-                patient["summary"]="Recibió un ACV"
-                return statuses.Status.DEAD, True, patient
+                patient["color"]=patient["color"]-0.05
 
-            pat_healthatts["Tension Arterial Sistólica"][0]=pat_healthatts["Tension Arterial Sistólica"][0]+random.randint(10,25)
-            pat_healthatts["Tension Arterial Diastólica"][0]=pat_healthatts["Tension Arterial Diastólica"][0]+random.randint(10,25)
+                if (450000-pat_healthatts["Plaquetas"][0]<50000):
+                    patient["color"]=0
+
+                    return statuses.Status.CURED, True, patient
+
+            pat_healthatts["Tension Arterial Sistólica"][0]=pat_healthatts["Tension Arterial Sistólica"][0]-random.randint(10,25)
+            pat_healthatts["Tension Arterial Diastólica"][0]=pat_healthatts["Tension Arterial Diastólica"][0]-random.randint(10,25)
+            pat_healthatts["Plaquetas"][0]=pat_healthatts["Plaquetas"][0]-random.randint(15000,23000)
+            patient["color"]=patient["color"]+0.05
+
+            pat_healthatts["Globulos Blancos"][0]=pat_healthatts["Globulos Blancos"][0]-random.randint(800,1300)
+
             return super().proceed(name, treatment, patient, mongoclient)
 
     def update_health_attributes(self, patient):
@@ -62,7 +60,7 @@ class dengue(base.Illness):
         if random.randint(1,2)==2:
             pat_healthatts["Creatinina"]=[random.randint(6,40)/10, "mg/dL"]
         if random.randint(1,2)==2:
-            pat_healthatts["Plaquetas"]=[random.randint(2,149000)/, "plaquetas/mm3"]
+            pat_healthatts["Plaquetas"]=[random.randint(2,149000), "plaquetas/mm3"]
         if random.randint(1,2)==2:
             pat_healthatts["Globulos blancos"]=[random.randint(2,4500)/10, "leucocitos/mm3"]
 

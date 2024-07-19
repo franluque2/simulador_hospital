@@ -42,13 +42,11 @@ class hypertension(base.Illness):
             pat_healthatts["Tension Arterial Diastólica"][0]=random.randint(60,89)
             return statuses.Status.CURED, True, patient  
       
-        if pat_healthatts["Tension Arterial Sistólica"][0]>180 or pat_healthatts["Tension Arterial Diastólica"][0]>110:
-            patient["color"]=0
-            patient["summary"]="Recibió un ACV"
-            return statuses.Status.DEAD, True, patient
 
         pat_healthatts["Tension Arterial Sistólica"][0]=pat_healthatts["Tension Arterial Sistólica"][0]+random.randint(10,25)
         pat_healthatts["Tension Arterial Diastólica"][0]=pat_healthatts["Tension Arterial Diastólica"][0]+random.randint(10,25)
+        patient["color"]=patient["color"]+0.05
+
         return super().proceed(name, treatment, patient, mongoclient)
 
     def update_health_attributes(self, patient):

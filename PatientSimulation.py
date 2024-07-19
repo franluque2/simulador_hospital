@@ -26,11 +26,12 @@ class patient_executor:
             self.illnesses = []
         if self.treatment is None:
             self.treatment = []
-        shouldRun = True
-        tick_modifier=self.mongoclient.get_tick_time(self.id)
         patient=self.mongoclient.get_patient_by_id(self.id)
+        shouldRun = patient["should_update"]
+        tick_modifier=self.mongoclient.get_tick_time(self.id)
         print(f"Started Thread {self.pname}!")
         while shouldRun:
+            patient=self.mongoclient.get_patient_by_id(self.id)
             self.treatment = self.mongoclient.gettreatment(self.id)
             health = self.mongoclient.get_health(self.id)
             # print(treatment)
@@ -39,8 +40,8 @@ class patient_executor:
             for i in self.illnesses:
                 status = None
                 if i is not None:
-                    status, changed = PatientCreation.str_to_illness(i).proceed(self.pname, self.treatment, patient, self.mongoclient)
-                if status.value == Status.DEAD:
+                    status, changed, patient = PatientCreation.str_to_illness(i).proceed(self.pname, self.treatment, patient, self.mongoclient)
+                if status == Status.DEAD:
                     shouldRun = False
                     requests.post("http://localhost:5000/api/v1/inner/senddangernotification", json={'id_patient': str(self.id)})
                 if status == Status.CURED:
@@ -56,7 +57,10 @@ class patient_executor:
                 changed = True
             if changed:
                 requests.post("http://localhost:5000/api/v1/inner/updatesims", json={'id_patient': str(self.id)})
+            patient["should_update"]=shouldRun
+            self.mongoclient.update_patient(self.id,patient)
             self.mongoclient.increasetotalticks(self.id)
+            shouldRun = patient["should_update"]
             time.sleep(TICK_TIME*tick_modifier)
 
 

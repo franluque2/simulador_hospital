@@ -23,11 +23,40 @@ class Illness(object):
         if statuses.treatments.INSULINA in treatment:
             pat_healthatts["Glucosa"]=pat_healthatts["Glucosa"]-random.randint(5,15)
             if pat_healthatts["Glucosa"]<40:
-                patient["color"]=0
+                patient["color"]=1
                 patient["summary"]="Hipoglucemia Severa"
                 return statuses.Status.DEAD, True, patient
+        
+        if pat_healthatts["Colesterol Total"][0]>400:
+            patient["color"]=1
+            patient["summary"]="Desarolló una Hipertensión Severa"
+            return statuses.Status.DEAD, True, patient
+        
+     
+        if pat_healthatts["Plaquetas"][0]<6000:
+            patient["color"]=1
+            patient["summary"]="Sufrio de Plaquetopenia Grave"
+            return statuses.Status.DEAD, True, patient
             
+        if pat_healthatts["Globulos Blancos"][0]<1000:
+            patient["color"]=1
+            patient["summary"]="Leucopenia Grave"
+            return statuses.Status.DEAD, True, patient
+        
+        if pat_healthatts["Glucosa"][0]>300:
+            patient["color"]=1
+            patient["summary"]="Hiperglucemia Severa"
+            return statuses.Status.DEAD, True, patient
+            
+        if pat_healthatts["Tension Arterial Sistólica"][0]>300 or pat_healthatts["Tension Arterial Diastólica"][0]>200:
+            patient["color"]=1
+            patient["summary"]="Recibió un ACV"
+            return statuses.Status.DEAD, True, patient
 
+        if pat_healthatts["Tension Arterial Sistólica"][0]==0 or pat_healthatts["Tension Arterial Diastólica"][0]==0:
+            patient["color"]=1
+            patient["summary"]="Hipotensión Severa"
+            return statuses.Status.DEAD, True, patient
         return statuses.Status.CONTINUE, False, patient
 
     def update_health_attributes(self, patient):

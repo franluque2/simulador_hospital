@@ -96,10 +96,16 @@ class FranMongo:
         if user_ids is not None:
             for u in user_ids:
                 db.Accounts.find_one_and_update({"_id": ObjectId(u)}, {"$push": {"patients": patientid.inserted_id}})
-                PatientSimulation.add_patient_sim(PatientSimulation.patient_executor(patient["name"], patient["illnesses"], patient["treatments"], patientid.inserted_id, self), self)
+        if(patient["should_update"]):
+            PatientSimulation.add_patient_sim(PatientSimulation.patient_executor(patient["name"], patient["illnesses"], patient["treatments"], patientid.inserted_id, self), self)
 
 
-
+    def toggle_patient_status(self, patientid, status: bool):
+        db.HospitalPatients.find_one_and_update({"_id": ObjectId(patientid)},
+                                                            {"$set": {"should_update": status}})
+        patient = db.HospitalPatients.find_one({"_id": ObjectId(patientid)})
+        if status==True:
+            PatientSimulation.add_patient_sim(PatientSimulation.patient_executor(patient["name"], patient["illnesses"], patient["treatments"], patientid, self),self)
     def assign_patient(self, patientid, userids):
         for patient in patientid:
             for u in userids:

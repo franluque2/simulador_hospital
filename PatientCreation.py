@@ -26,15 +26,16 @@ def generate_rand_name(sex):
 
 
 def str_to_illness(illness: str) -> illnesses.base.Illness:
-    if str(illness).lower == "debugbase":
+    print(f"The Illness is {str(illness).lower()}")
+    if str(illness).lower() == "debugbase":
         return illnesses.base.Illness()
-    if str(illness).lower == "hipertension":
+    if str(illness).lower() == "hipertension":
         return illnesses.hypertension.hypertension()
-    if str(illness).lower == "dengue":
+    if str(illness).lower() == "dengue":
         return illnesses.dengue.dengue()
-    if str(illness).lower == "diabetes":
+    if str(illness).lower() == "diabetes":
         return illnesses.diabetes_tipo_dos.diabetes_tipo_dos()
-    if str(illness).lower == "obesidad":
+    if str(illness).lower() == "obesidad":
         return illnesses.obesidad.obesidad()
     else:
         return illnesses.hypertension.hypertension()
@@ -109,10 +110,11 @@ def generate_patient(args=None):
         patient["illnesses"] = list()
         illnesses_inner=args["illnesses"]
         patientillness=str_to_illness(illnesses_inner)
-        patient["illnesses"] = args["illnesses"]
-    else:
-        patientillness=str_to_illness("hipertension")
-        patient["illnesses"] = ["hipertension"]
+        if isinstance(args["illnesses"], str):
+            patient["illnesses"] = [args["illnesses"]]
+        else:
+            patient["illnesses"] = args["illnesses"]
+
 
     if "health_attributes" in args and args["health_attributes"] is not None:
         patient["health_attributes"] = args["health_attributes"]
@@ -144,10 +146,10 @@ def generate_patient(args=None):
         }
         patient["health_attributes"]=health_atts
 
-    if "color" in args and (args["color"] is not None) and args["color"] != "1":
+    if "color" in args and (args["color"] is not None) and args["color"] != "0":
         patient["color"] = args["color"]
     else:
-        patient["color"] = random.random()
+        patient["color"] = 0
     if "can_transfer" in args and args["can_transfer"] is not None:
         patient["can_transfer"] = args["can_transfer"]
     else:
