@@ -1,0 +1,74 @@
+@startuml Base de Datos
+
+class Usuario{
+    ObjectId id
+    string email
+    string password
+    string name
+    int phone_number
+    array patients
+    array notifications
+    array pending_transfers
+    bool should_receive_whatsapp_notifications
+}
+
+class Paciente{
+    ObjectId id
+    String sex
+    string name
+    int age
+    string src
+    string personaldata
+    array familydata
+    string physeval
+    array labs
+    string treatments
+    string riskfactors
+    array interviews
+    array health_attributes
+    float color
+    bool can_transfer
+    bool should_update
+    string summary
+    int tick_time
+    int total_ticks
+    array logs
+    array symptoms
+    string motive
+    array feedback
+}
+struct feedback
+{
+    ObjectId id
+    ObjectId userId 
+    string feedback_contents
+}
+struct health_attributes{
+    string Globulos Rojos
+    string Globulos Blancos
+    string Plaquetas
+    string Hemoglobina
+    string Glucosa
+    string Creatinina
+    string Colesterol Total
+    string Colesterol HDL
+    string Colesterol LDL
+    string Trigliceridos
+    string Sodio
+    string Potasio
+    string Cloro
+    string Calcio
+    string Ácido Úrico
+    string Urea
+    string Bilirrubina
+    string Tension Arterial Sistólica
+    string Tension Arterial Diastólica
+    string Albúmina en Sangre
+    string Hematocrito
+
+
+}
+Paciente --> health_attributes
+Paciente --> feedback
+Usuario --> Paciente
+@enduml

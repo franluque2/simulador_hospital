@@ -480,7 +480,7 @@ def senddangernotification():
         for u in users:
             socketio.emit('patient danger', {'patient': json.loads(dumps(patient))})
             #Remove False when ready to test whatsapp messages
-            if False and u["should_receive_whatsapp_notifications"]==True and len(u["phone_number"])==12:
+            if u["should_receive_whatsapp_notifications"]==True and len(u["phone_number"])==12:
                 sendWhatsAppMessage(f'Tu Paciente {patient["name"]} ha tenido cambios importantes en el simulador!', u["phone_number"])
     return jsonify({'data': True}), 200
 

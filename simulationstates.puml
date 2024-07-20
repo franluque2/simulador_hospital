@@ -1,0 +1,41 @@
+@startuml Estados de la Simulacion
+
+[*] --> Inicio
+
+
+state Inicio{
+    state "Se Carga el Paciente a la Simulación"
+}
+state Congelado{
+    state "El Paciente ha finalizado su estadia en el hospital o esta esta frenada por el profesor"
+}
+state Main_Loop{
+    state Corriendo{
+        state "El paciente llama a sus patologias a que corran sus modificaciones del periodo"
+    }
+    state Aumentar_Contador{
+        state "El contador interno del paciente aumenta para mostrar su antiguedad en la simulacion"
+    }
+    state Inform_app{
+        state "Informar de los cambios al servidor web y a los Usuarios"
+    }
+    state Esperar{
+        state "La simulacion del paciente pausa por su periodo especificado"
+    }
+    state Revisar_Cambios{
+        state "Chequear si ha cambiado should_run"
+    }
+}
+
+Inicio --> Congelado : should_update==false
+
+Inicio --> Corriendo : should_update==true
+
+Corriendo --> Aumentar_Contador
+Aumentar_Contador --> Inform_app
+Inform_app-->Esperar
+Esperar-->Revisar_Cambios
+Revisar_Cambios--> Congelado : should_update==false
+Revisar_Cambios --> Corriendo : should_update==true
+
+@enduml

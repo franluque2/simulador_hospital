@@ -121,7 +121,7 @@ def generate_patient(args=None):
     else:
         
         health_atts = {
-                "Globuloa Rojos": [random.randint(4500000, 5900000), "celulas/mcL"],
+                "Globulos Rojos": [random.randint(4500000, 5900000), "celulas/mcL"],
                 "Globulos Blancos": [random.randint(4500, 10000), "leucocitos/mm3"],
                 "Plaquetas": [random.randint(150000, 450000), "plaquetas/mm3"],
                 "Hemoglobina": [random.randint(13, 16), "g/dl"],

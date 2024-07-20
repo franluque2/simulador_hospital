@@ -1,0 +1,60 @@
+@startuml Servicios
+object appserver{
+    Flask
+    Corre los servicios de Backend y comunicación entre la aplicación y la simulación
+
+}
+
+object simulator{
+    Custom Python library
+    Se encarga de Simular los alumnos y devolver los resultados
+}
+
+object PatientCreator{
+    Custom Python Library
+    Crea los objetos que simulan a los pacientes
+}
+
+object PatientSimulator{
+    Custom Python Library
+    Se encarga de la simulación fina de los pacientes
+}
+
+object database{
+    MongoDB
+    Mantiene los datos de los Usuarios y Pacientes
+}
+
+object OpenAICLient{
+    Python
+    Actua de interprete para la simulación y las necesidades de IA
+}
+
+object MongoClient{
+    Custom Python Library
+    Interpreta de forma mas eficiente y legible las instrucciones para operar con la base de datos
+}
+
+object WhatsAppClient{
+    Python y Twilio
+    Actua de Interprete para la conexión de notificaciones a Whatsapp
+}
+
+object FrontEnd{
+    Vue y Vuetify v2 (Javascript)
+    Front End que se le presenta al usuario
+}
+
+FrontEnd<-->appserver
+appserver-->WhatsAppClient
+appserver<-->MongoClient
+appserver<-->simulator
+appserver-->PatientCreator
+PatientCreator<-->OpenAICLient
+simulator-->PatientSimulator
+simulator-->PatientCreator
+MongoClient-->database
+PatientCreator-->MongoClient
+PatientSimulator<-->MongoClient
+PatientCreator-->PatientSimulator
+@enduml
