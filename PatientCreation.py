@@ -188,6 +188,7 @@ def generate_patient(args=None):
     else:
         patient["motive"] = FranOpenAiClient.generate_clinical_interview(patient,illness=patientillness,symptoms_list= patient["symptoms"])
 
+    patient["comments"]=[]
     if "user_ids" in args and args["user_ids"] is not None:
         FranMongoClient.FranMongo().create_patient(patient, args["user_ids"])
     else:

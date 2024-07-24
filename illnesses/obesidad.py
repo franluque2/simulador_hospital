@@ -63,6 +63,8 @@ class obesidad(base.Illness):
             pat_healthatts["Colesterol Total"]=[random.randint(200,500), "mg/dl"]
         if random.randint(1,2)==2:
             pat_healthatts["Acido Urico"]=[random.randint(72,400)/10, "mg/dl"]
+        
+        #Modificar IMS del paciente
 
         return patient
     

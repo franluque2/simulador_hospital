@@ -218,6 +218,28 @@ def update_treatment():
             return jsonify({'msg': 'Patient not found'}), 404
     else:
         return jsonify({'msg': 'Profile not found'}), 404
+    
+
+@app.route("/api/v1/patient/add_comment", methods=["POST"])
+@jwt_required()
+def add_comment():
+    details = request.get_json()
+    # print(treatment_details)
+    patientid = details['id_patient']
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        keys = user_from_db['patients']
+        patientidtemp = ObjectId(patientid)
+        patients = patients_collection.find_one({'_id': patientidtemp})
+        if patients:
+            patients_collection.find_one_and_update({'_id': patientidtemp},
+                                                    {'$push': {'comments': details['comment']}})
+            return jsonify({'msg': 'Added Comment'}), 200
+        else:
+            return jsonify({'msg': 'Patient not found'}), 404
+    else:
+        return jsonify({'msg': 'Profile not found'}), 404
 
 
 @app.route("/api/v1/patient/insert_patient", methods=["POST"])
@@ -315,8 +337,7 @@ def get_transfers():
                         'senderid': transf["sender_id"],
                         'patientname': patients_collection.find_one({"_id": ObjectId(transf["patient_id"])})["name"],
                         'sendername': users_collection.find_one({"_id": ObjectId(transf["sender_id"])})["name"],
-                        'patientsrc': patients_collection.find_one({"_id": ObjectId(transf["patient_id"])})["src"],
-                        'sendersrc': users_collection.find_one({"_id": ObjectId(transf["sender_id"])})["profile_img"]
+                        'patientsrc': patients_collection.find_one({"_id": ObjectId(transf["patient_id"])})["src"]
                         }
                 temp.append(item)
         return jsonify({'transfer_requests': json.loads(dumps(temp))}), 200
