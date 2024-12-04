@@ -24,8 +24,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-client = MongoClient("mongodb://localhost:27017/")  # your connection string
-db = client["hospital"]
+db = FranMongoClient.db
 users_collection = db["Accounts"]
 patients_collection = db["HospitalPatients"]
 

@@ -1,13 +1,15 @@
 from pymongo import MongoClient
 
+import os
 import illnesses
 from bson.objectid import ObjectId
 import PatientSimulation
 import PatientCreation
 
-client = MongoClient("localhost", 27017)
+mongo_uri = os.getenv("MONGO_URI", "mongodb://mongo:27017/hospital")
+client = MongoClient(mongo_uri)
 
-db = client.hospital
+db = client.get_database()
 
 
 class FranMongo:
