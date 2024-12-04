@@ -150,8 +150,22 @@ def get_all_patients():
 
         if patients is not []:
             for p in patients:
-                # print(str(patients[i]["_id"]))
                 p['_id'] = str(p['_id'])
+                if not user_from_db['is_professor']:
+                    del p['illnesses'], p['risk_factors']
+                else:
+                    users = FranMongoClient.FranMongo().get_users_by_assigned_patient(p['_id'])
+                    if users:
+                        temp = []
+                        for u in users:
+                            temp2 = u
+                            temp2["_id"] = str(temp2["_id"])
+                            del temp2["phone_number"]
+                            del temp2["patients"]
+                            del temp2["password"]
+                            temp.append(temp2)
+                        p["assigned_users"] = temp
+
             return jsonify({'patients': json.loads(dumps(patients))}), 200
         else:
             return jsonify({'msg': 'No Patients loaded'}), 204
@@ -448,6 +462,20 @@ def get_student(studentid):
             return jsonify({'msg': 'Student not found'}), 404
     else:
         return jsonify({'msg': 'Profile not found'}), 404
+
+
+@app.route("/api/v1/regen_patient", methods=["POST"])
+@jwt_required()
+def regenerate_patient():
+    details = request.get_json()
+    current_user = get_jwt_identity()  # Get the identity of the current user
+    user_from_db = users_collection.find_one({'email': current_user})
+    if user_from_db:
+        if details["patient_id"]:
+            PatientCreation.regenerate_patient(details["patient_id"])
+            return jsonify({'msg': 'Regenerated Patient'}), 200
+        else:
+            return jsonify({'msg': 'Missing info'}), 400
 
 
 @app.route("/api/v1/students_by_assigned_patient/<patientid>", methods=["GET"])

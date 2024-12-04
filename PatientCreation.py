@@ -195,6 +195,43 @@ def generate_patient(args=None):
         FranMongoClient.FranMongo().create_patient(patient)
 
 
+def regenerate_patient(patientid):
+    patient=FranMongoClient.FranMongo().get_patient_by_id(patientid)
+    if (not patient):
+        return
+    patient["labs"] = {}
+    health_atts = {
+                    "Globulos Rojos": [random.randint(4500000, 5900000), "celulas/mcL"],
+                    "Globulos Blancos": [random.randint(4500, 10000), "leucocitos/mm3"],
+                    "Plaquetas": [random.randint(150000, 450000), "plaquetas/mm3"],
+                    "Hemoglobina": [random.randint(13, 16), "g/dl"],
+                    "Glucosa": [random.randint(80, 100), "mg/dl"],
+                    "Creatinina": [random.randint(6, 10)/10, "mg/dl"],
+                    "Colesterol Total": [random.randint(120, 200), "mg/dl"],
+                    "Colesterol HDL": [random.randint(42, 90), "mg/dl"],
+                    "Colesterol LDL": [random.randint(80, 110), "mg/dl"],
+                    "Trigliceridos": [random.randint(30, 150), "mg/dl"],
+                    "Sodio": [random.randint(135, 145), "mEq/L"],
+                    "Potasio": [random.randint(37, 52)/10, "mEq/L"],
+                    "Cloro": [random.randint(96, 106), "mEq/L"],
+                    "Calcio": [random.randint(85, 105)/10, "mg/dl"],
+                    "Ácido Úrico": [random.randint(35, 72)/10, "mg/dl"],
+                    "Urea": [random.randint(6, 24), "mg/dL"],
+                    "Bilirrubina": [random.randint(3, 14)/10, "mg/dl"],
+                    "Tension Arterial Sistólica": [random.randint(90, 139), "mmHg"],
+                    "Tension Arterial Diastólica": [random.randint(60, 89), "mmHg"],
+                    "Albúmina en Sangre": [random.randint(34, 54)/ 10, "g/dL"],
+                    "Hematocrito": [random.randint(38, 44), "%"],
+
+            }
+    patient["health_attributes"]=health_atts
+    patient["treatments"] = ""
+    patient["treatments_string"] = ""
+    FranMongoClient.FranMongo().update_patient(patientid,patient)
+
+
+
+
 if __name__ == '__main__':
     # print(insert_client_in_db("Diego", "Malaria"))
     # delete_client_in_db_by_name("Pedro")
