@@ -1,0 +1,33 @@
+@startuml Servicios
+
+object Exterior{
+
+}
+
+package DockerNetwork
+{
+    
+    object FrontEnd{
+        Vue y Javascript
+    }
+
+    object BackEnd{
+        Python
+    }
+
+    object MongoDB{
+        Base de Datos
+    }
+
+    object Nginx{
+        Proxy
+    }
+}
+
+
+FrontEnd<-->BackEnd
+BackEnd-->MongoDB
+Nginx-->FrontEnd
+Nginx-->BackEnd
+Exterior-->Nginx
+@enduml

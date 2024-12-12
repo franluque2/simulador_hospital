@@ -1,0 +1,17 @@
+@startuml Base de Datos
+
+class Usuario{
+}
+
+class Paciente{
+}
+struct feedback
+{
+}
+struct health_attributes{
+
+}
+Paciente --> health_attributes
+Paciente --> feedback
+Usuario --> Paciente
+@enduml
