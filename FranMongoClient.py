@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 import PatientSimulation
 import PatientCreation
 
-mongo_uri = os.getenv("MONGO_URI", "mongodb://admin:pass@mongo:27017/hospital")
+mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/hospital")
 client = MongoClient(mongo_uri)
 
 db = client.get_database("hospital")
